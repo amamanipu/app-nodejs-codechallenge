@@ -1,82 +1,124 @@
-# Yape Code Challenge :rocket:
+# PROYECTO APP-NODEJS-KAFKA-TS
 
-Our code challenge will let you marvel us with your Jedi coding skills :smile:. 
+El proyecto ha sido desarrollado con NodeJS, Koa y Kafka. Utilizando el lenguaje de programación Typescript.
 
-Don't forget that the proper way to submit your work is to fork the repo and create a PR :wink: ... have fun !!
+1. anti-fraud: Valida si el valor de la transación si es aprobado o rechazado.
+2. transaction: Obtiene la transacción, registra la transacción y actualiza el estado de la transacción.
 
-- [Problem](#problem)
-- [Tech Stack](#tech_stack)
-- [Send us your challenge](#send_us_your_challenge)
+Seguir los siguientes pasos para usar el proyecto.
 
-# Problem
+### Descargar e instalar versión de nodejs >= 20.x.x
+- ```https://nodejs.org/en/download```
 
-Every time a financial transaction is created it must be validated by our anti-fraud microservice and then the same service sends a message back to update the transaction status.
-For now, we have only three transaction statuses:
+### Clonar el repositorio app-nodejs-kafka-ts
+- Ejecutar el comando: ```git clone https://github.com/amamanipu/app-nodejs-kafka-ts.git```
 
-<ol>
-  <li>pending</li>
-  <li>approved</li>
-  <li>rejected</li>  
-</ol>
+### Descargar dependencias y ejecutar microservicio anti-fraud en local
+- Ubicarnos en microservicio: ```cd anti-fraud```
+- Descargar dependencias: ```npm install```
+- Ejecutar microservicio: `npm run dev`
 
-Every transaction with a value greater than 1000 should be rejected.
+### Descargar dependencias y ejecutar microservicio transaction en local
+- Ubicarnos en microservicio: ```cd transaction```
+- Descargar dependencias: ```npm install```
+- Ejecutar microservicio: ```npm run dev```
 
-```mermaid
-  flowchart LR
-    Transaction -- Save Transaction with pending Status --> transactionDatabase[(Database)]
-    Transaction --Send transaction Created event--> Anti-Fraud
-    Anti-Fraud -- Send transaction Status Approved event--> Transaction
-    Anti-Fraud -- Send transaction Status Rejected event--> Transaction
-    Transaction -- Update transaction Status event--> transactionDatabase[(Database)]
+### Ejecutar pruebas unitarias en cada microservicio
+- Ejecutar el comando: ```npm run test```
+
+### Estructura del Proyecto
+ La carpeta contiene:
+
+- `anti-fraud` - Contiene codigo de validar de transacción.
+- `transaction` - Contiene codigo de obtener, registrar y actualizar transacción. 
+
+```
+.
+├── anti-fraud
+│   ├── src        
+│   │   ├── common
+│   │   │   └── constants.ts
+│   │   ├── infrastructure
+│   │   │   └── kafka
+│   │   │       ├── consumers
+│   │   │       │   └── transaction.consumer.ts
+│   │   │       └── producers
+│   │   │           └── transactionStatus.producer.ts
+│   │   └── main.ts
+│   ├── package.json
+│   └── tsconfig.json
+│
+├── transaction
+│   ├── src     
+│   │   ├── application
+│   │   │   └── services 
+│   │   │       └── transaction.service.ts  
+│   │   ├── common
+│   │   │   └── constants.ts
+│   │   ├── domain
+│   │   │   └── repositories 
+│   │   │       └── transaction.repository.ts  
+│   │   ├── infrastructure
+│   │   │   ├── graphql
+│   │   │   │   ├── transaction
+│   │   │   │   │   ├── transaction.resolver.ts
+│   │   │   │   │   └── transaction.schema.ts
+│   │   │   │   └── schema.ts
+│   │   │   ├── kafka
+│   │   │   │   ├── consumers
+│   │   │   │   │   └── transactionStatus.consumer.ts
+│   │   │   │   └── producers
+│   │   │   │       └── transaction.producer.ts
+│   │   │   └── orm
+│   │   │       └── sequelize
+│   │   │           └── postgresql
+│   │   │               ├── models
+│   │   │               │   ├── transaction.model.ts
+│   │   │               │   ├── transactionStatus.model.ts
+│   │   │               │   └── transactionType.model.ts
+│   │   │               ├── repositories
+│   │   │               │   └── transaction.repository.ts
+│   │   │               └── connection.ts
+│   │   ├── container.ts
+│   │   └── main.ts
+│   ├── test   
+│   ├── package.json
+│   └── tsconfig.json
+│
+└── README.md
 ```
 
-# Tech Stack
+### Uso de Graphql
 
-<ol>
-  <li>Node. You can use any framework you want (i.e. Nestjs with an ORM like TypeOrm or Prisma) </li>
-  <li>Any database</li>
-  <li>Kafka</li>    
-</ol>
+- URI: ```http://localhost:3000/graphql```
 
-We do provide a `Dockerfile` to help you get started with a dev environment.
-
-You must have two resources:
-
-1. Resource to create a transaction that must containt:
-
-```json
-{
-  "accountExternalIdDebit": "Guid",
-  "accountExternalIdCredit": "Guid",
-  "tranferTypeId": 1,
-  "value": 120
+```graphql
+query {
+    transaction(transactionExternalId: "2a6d5b76-cf85-406a-9c62-877cfe3e36fc") {
+        transactionExternalId,
+        transactionType {
+            name
+        },
+        transactionStatus {
+            name
+        },
+        value,
+        createdAt
+    }
 }
 ```
 
-2. Resource to retrieve a transaction
-
-```json
-{
-  "transactionExternalId": "Guid",
-  "transactionType": {
-    "name": ""
-  },
-  "transactionStatus": {
-    "name": ""
-  },
-  "value": 120,
-  "createdAt": "Date"
+```graphql
+mutation {
+  createTransaction(
+    TransactionInput: {
+      accountExternalIdDebit: "d6eb621f-6dd0-4cdc-93f5-07f51b249b51",
+      accountExternalIdCredit: "d6eb621f-6dd0-4cdc-93f5-07f51b249b51",
+      tranferTypeId: 1,
+      value: 750
+    }
+  ) {
+    transactionExternalId
+  }
 }
 ```
-
-## Optional
-
-You can use any approach to store transaction data but you should consider that we may deal with high volume scenarios where we have a huge amount of writes and reads for the same data at the same time. How would you tackle this requirement?
-
-You can use Graphql;
-
-# Send us your challenge
-
-When you finish your challenge, after forking a repository, you **must** open a pull request to our repository. There are no limitations to the implementation, you can follow the programming paradigm, modularization, and style that you feel is the most appropriate solution.
-
-If you have any questions, please let us know.
