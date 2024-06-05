@@ -1,6 +1,6 @@
-# PROYECTO APP-NODEJS-KAFKA-TS
+# PROYECTO APP-NODEJS-CODECHALLENGE
 
-El proyecto ha sido desarrollado con NodeJS, Koa y Kafka. Utilizando el lenguaje de programación Typescript.
+El proyecto ha sido desarrollado con NodeJS, Koa, Graphql y Kafka. Utilizando el lenguaje de programación Typescript.
 
 1. anti-fraud: Valida si el valor de la transación si es aprobado o rechazado.
 2. transaction: Obtiene la transacción, registra la transacción y actualiza el estado de la transacción.
@@ -10,8 +10,8 @@ Seguir los siguientes pasos para usar el proyecto.
 ### Descargar e instalar versión de nodejs >= 20.x.x
 - ```https://nodejs.org/en/download```
 
-### Clonar el repositorio app-nodejs-kafka-ts
-- Ejecutar el comando: ```git clone https://github.com/amamanipu/app-nodejs-kafka-ts.git```
+### Clonar el repositorio app-nodejs-codechallenge
+- Ejecutar el comando: ```git clone https://github.com/amamanipu/app-nodejs-codechallenge.git```
 
 ### Descargar dependencias y ejecutar microservicio anti-fraud en local
 - Ubicarnos en microservicio: ```cd anti-fraud```
